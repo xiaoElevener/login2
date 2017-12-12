@@ -13,40 +13,38 @@ import java.util.Map;
 
 /**
  * @author Administrator
- * @create 2017-12-12 12:17
  */
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/system")
 @Slf4j
 public class UserController {
 
     @GetMapping("/index")
-    public ModelAndView index() {
+    public String index() {
         log.info("【index】");
-        return new ModelAndView("user/login");
+        return "user/login";
     }
 
 
     /**
      * 成功跳转info
      * 报错跳转error
-     * @return
      */
     @GetMapping(value = "/session")
-    public ModelAndView login(){
+    public String login(){
         log.info("【用户登录】");
-        return new ModelAndView("/user/info");
+        return  "user/info";
     }
 
     @DeleteMapping(value = "/session")
-    public ModelAndView logout(){
-        return new ModelAndView("user/login.ftl");
+    public String logout(){
+        return "user/login";
     }
 
     @GetMapping(value = "/error")
-    public ModelAndView error(Map<String,Object> map){
-        map.put("message", "错误提示");
-        return new ModelAndView("user/error",map);
+    public String error(Map<String,Object> map){
+        map.put("message", "【这是个友好的提示】");
+        return "common/error";
     }
 
 }
