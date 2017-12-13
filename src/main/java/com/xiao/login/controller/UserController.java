@@ -1,11 +1,11 @@
 package com.xiao.login.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Map;
@@ -13,40 +13,54 @@ import java.util.Map;
 
 /**
  * @author Administrator
- * @create 2017-12-12 12:17
  */
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/system")
 @Slf4j
 public class UserController {
 
-    @GetMapping("/index")
-    public ModelAndView index() {
-        log.info("【index】");
-        return new ModelAndView("user/login");
+    /**
+     * 获取登录页面
+     * @return
+     */
+    @RequestMapping("/loginForm")
+    public String getLoginForm() {
+        return "user/login";
+    }
+
+
+    @RequestMapping("/login")
+    public void login(@RequestParam("nickname") String nickname,@RequestParam("password") String password) {
+        AuthenticationToken authenticationToken = new UsernamePasswordToken(nickname, password);
     }
 
 
     /**
-     * 成功跳转info
-     * 报错跳转error
+     * 登陆成功页面
      * @return
      */
-    @GetMapping(value = "/session")
-    public ModelAndView login(){
-        log.info("【用户登录】");
-        return new ModelAndView("/user/info");
+    @RequestMapping(value = "/index")
+    public String index(){
+        return  "user/info";
     }
 
-    @DeleteMapping(value = "/session")
-    public ModelAndView logout(){
-        return new ModelAndView("user/login.ftl");
+    @RequestMapping(value = "/logout")
+    public String logout(){
+        //TODO
+        return "user/login";
     }
 
-    @GetMapping(value = "/error")
-    public ModelAndView error(Map<String,Object> map){
-        map.put("message", "错误提示");
-        return new ModelAndView("user/error",map);
+
+    @RequestMapping(value = "/error")
+    public String error(Map<String,Object> map){
+        map.put("message", "用户名/密码错误");
+        return "common/error";
+    }
+
+    @RequestMapping(value = "/403")
+    public String Unauthorized(Map<String,Object> map){
+        map.put("message", "未授权!");
+        return "common/error";
     }
 
 }
