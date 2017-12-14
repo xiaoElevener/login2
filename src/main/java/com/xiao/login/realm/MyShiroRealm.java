@@ -4,6 +4,7 @@ import com.xiao.login.Enum.UserStatusEnum;
 import com.xiao.login.entity.Role;
 import com.xiao.login.entity.User;
 import com.xiao.login.service.UserService;
+import com.xiao.login.utils.PasswordUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -15,6 +16,7 @@ import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,8 +72,12 @@ public class MyShiroRealm extends AuthorizingRealm {
         if(SecurityUtils.getSubject().isAuthenticated()){
             SecurityUtils.getSubject().logout();
         }
+
+        //用户输入的昵称和密码
         String nickname= (String) authenticationToken.getPrincipal();
         String password=new String((char[]) authenticationToken.getCredentials());
+
+        //通过昵称去查询User
         User user = userService.findByNickname(nickname);
 
         if (user == null) {
@@ -79,7 +85,8 @@ public class MyShiroRealm extends AuthorizingRealm {
             throw new UnknownAccountException();//没找到账号
         }
 
-        if(!user.getPswd().equals(password)){
+        //从数据库读取需要解密再比较
+        if(!PasswordUtil.decryptBasedDes(user.getPswd()).equals(password)){
             log.error("【登录失败】密码错误 psd={},psd2={}",user.getPswd(),password);
             throw new IncorrectCredentialsException();//密码错误
         }
@@ -89,11 +96,16 @@ public class MyShiroRealm extends AuthorizingRealm {
             throw new LockedAccountException();
         }
 
+
         //交给AuthenticatingRealm使用CredetiasMatcher进行密码匹配
-        //TODO 这里可以添加salt进行加密
-        SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(user.getNickname(), user.getPswd(), getName());
+        SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(nickname, password, getName());
+
+        //更新user登录时间
+        user.setLastLoginTime(new Date());
+        userService.updateUser(user);
 
         log.info("【用户登录】={}",user);
+
         return authenticationInfo;
     }
 

@@ -60,7 +60,7 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setLoginUrl("/system/loginForm");
 
         //设置登陆成功要跳转的链接
-        shiroFilterFactoryBean.setSuccessUrl("/system/index");
+        //shiroFilterFactoryBean.setSuccessUrl("/system/index");
 
         //未授权界面
         shiroFilterFactoryBean.setUnauthorizedUrl("/system/403");
@@ -91,10 +91,9 @@ public class ShiroConfig {
 
 
 
-
         // /**一般放最后配置，chain匹配是从上到下逐个执行
-        //authc:utl必须通过认证过后才能匹配
-        filterChainDefinitionMap.put("/**", "authc");
+        //user:通过验证或者rememberMe 为true都能访问
+        filterChainDefinitionMap.put("/**", "user");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         log.info("【shiro拦截器注入】");
@@ -173,7 +172,6 @@ public class ShiroConfig {
         //参数为前端checkbox 的name
 
         SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
-
         //生效时间  30天
         simpleCookie.setMaxAge(2592000);
         return simpleCookie;
@@ -185,7 +183,7 @@ public class ShiroConfig {
         CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
         cookieRememberMeManager.setCookie(rememberMeCookie());
 
-        cookieRememberMeManager.setCipherKey(Base64.decode("d2hvIGkgYW0="));
+        cookieRememberMeManager.setCipherKey(Base64.decode("3AvVhmFLUs0KTA3Kprsdag=="));
         return cookieRememberMeManager;
     }
 

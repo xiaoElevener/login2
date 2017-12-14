@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 
@@ -39,7 +40,9 @@ public class UserController {
 
 
     @RequestMapping("/login")
-    public String login(@RequestParam("nickname") String nickname, @RequestParam("password") String password,@RequestParam("rememberMe") boolean rememberMe, Map<String, Object> map) {
+    public String login(@RequestParam("nickname") String nickname, @RequestParam("password") String password,@RequestParam(value="rememberMe",
+            required = false,defaultValue = "false") boolean rememberMe, Map<String, Object> map,
+            HttpServletResponse response) {
         AuthenticationToken authenticationToken = new UsernamePasswordToken(nickname, password,rememberMe);
         try {
             SecurityUtils.getSubject().login(authenticationToken);
@@ -58,8 +61,7 @@ public class UserController {
             return "common/error";
         }
         log.info("【登陆成功】");
-        map.put("info", JsonUtil.toJson(userService.findRolesAndPermission(nickname)));
-        return "user/info";
+        return "redirect:"+response.encodeRedirectURL("/system/index?nickname="+nickname);
     }
 
 
@@ -69,7 +71,8 @@ public class UserController {
      * @return 登陆成功页面
      */
     @RequestMapping(value = "/index")
-    public String index() {
+    public String index( Map<String, Object> map,@RequestParam("nickname") String nickname) {
+        map.put("info", JsonUtil.toJson(userService.findRolesAndPermission(nickname)));
         return "user/info";
     }
 

@@ -9,6 +9,7 @@ import com.xiao.login.repository.UserRepository;
 import com.xiao.login.repository.UserRoleRepository;
 import com.xiao.login.service.RoleService;
 import com.xiao.login.service.UserService;
+import com.xiao.login.utils.PasswordUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
+        //创建角色的时候对帐号加密
+        user.setPswd(PasswordUtil.encryptBasedDes(user.getPswd()));
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User updateUser(User user) {
         return userRepository.save(user);
     }
 
@@ -47,7 +55,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(Integer uid, String newPassword) {
         User user = userRepository.findOne(uid);
-        user.setPswd(newPassword);
+        user.setPswd(PasswordUtil.encryptBasedDes(newPassword));
         userRepository.save(user);
     }
 
