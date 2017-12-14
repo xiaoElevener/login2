@@ -2,9 +2,11 @@ package com.xiao.login.config;
 
 import com.xiao.login.realm.MyShiroRealm;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,26 +28,30 @@ public class ShiroConfig {
      * 3、部分过滤器可指定参数，如perms，roles
      */
 
+    @Bean
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
+
+
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
 
         //设置SecurityManager
         shiroFilterFactoryBean.setSecurityManager(securityManager);
 
         //设置登陆的url
-        shiroFilterFactoryBean.setLoginUrl("system/loginForm");
+        shiroFilterFactoryBean.setLoginUrl("/system/loginForm");
 
         //设置登陆成功要跳转的链接
-        shiroFilterFactoryBean.setSuccessUrl("system/index");
+        shiroFilterFactoryBean.setSuccessUrl("/system/index");
 
         //未授权界面
-        shiroFilterFactoryBean.setUnauthorizedUrl("system/403");
+        shiroFilterFactoryBean.setUnauthorizedUrl("/system/403");
 
         //拦截器
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
         //配置不会被拦截的链接  顺序判断
-        filterChainDefinitionMap.put("/static/**", "anno");
-        filterChainDefinitionMap.put("/system/login", "anno");
+        filterChainDefinitionMap.put("/css/**", "anon");
+        filterChainDefinitionMap.put("/system/loginForm", "anon");
+        filterChainDefinitionMap.put("/system/login", "anon");
 
         //配置推出过滤器，其中具体的退出代码shiro已经替我们实现了
         filterChainDefinitionMap.put("/system/logout", "logout");
@@ -66,7 +72,7 @@ public class ShiroConfig {
 
     @Bean
     public SecurityManager securityManager() {
-        DefaultSecurityManager securityManage = new DefaultSecurityManager();
+        DefaultWebSecurityManager securityManage = new DefaultWebSecurityManager();
         //设置realm
         securityManage.setRealm(myShiroRealm());
         return securityManage;

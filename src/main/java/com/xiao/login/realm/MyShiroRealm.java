@@ -3,6 +3,8 @@ package com.xiao.login.realm;
 import com.xiao.login.Enum.UserStatusEnum;
 import com.xiao.login.entity.User;
 import com.xiao.login.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Administrator
  * @create 2017-12-13 14:56
  */
+@Slf4j
 public class MyShiroRealm extends AuthorizingRealm {
 
     @Autowired
@@ -39,15 +42,26 @@ public class MyShiroRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        String nickname= (String) authenticationToken.getPrincipal();
 
+        if(SecurityUtils.getSubject().isAuthenticated()){
+            SecurityUtils.getSubject().logout();
+        }
+        String nickname= (String) authenticationToken.getPrincipal();
+        String password=new String((char[]) authenticationToken.getCredentials());
         User user = userService.findByNickname(nickname);
 
         if (user == null) {
+            log.error("【登录失败】无此帐号");
             throw new UnknownAccountException();//没找到账号
         }
 
+        if(!user.getPswd().equals(password)){
+            log.error("【登录失败】密码错误 psd={},psd2={}",user.getPswd(),password);
+            throw new IncorrectCredentialsException();//密码错误
+        }
+
         if (user.getStatus().equals(UserStatusEnum.DOWN.code)) {
+            log.error("【登录失败】帐号未激活");
             throw new LockedAccountException();
         }
 
