@@ -3,17 +3,15 @@ package com.xiao.login.service.impl;
 import com.xiao.login.entity.User;
 import com.xiao.login.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.util.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.Assert;
 
 import java.util.Date;
-import java.util.Set;
 
-import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -51,12 +49,7 @@ public class UserServiceImplTest {
         userService.uncorrelationRoles(2, 1, 2, 3, 4);
     }
 
-    @Test
-    public void findByNickname() {
-        Set<String> set = userService.findRoles("xiao");
-        log.info("【通过昵称查询角色集合】 set={}",set);
-        Assert.notNull(set);
-    }
+    
 
     @Test
     public void findRoles() {

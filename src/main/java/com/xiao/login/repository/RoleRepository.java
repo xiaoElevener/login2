@@ -8,5 +8,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @create 2017-12-13 11:15
  */
 public interface RoleRepository extends JpaRepository<Role,Integer>{
-     Role findById(Integer id);
 }

@@ -17,22 +17,47 @@
             <div class="alert alert-info">
                 <button type="button" class="close" data-dismiss="alert">×</button>
                 <h4>
-                    您所拥有的角色如下:
-                </h4> <strong>${roles}</strong>
+                    您所拥有的角色及权限如下:
+                </h4> <strong>${info}</strong>
             </div>
         </div>
         <div class="col-md-2">
         </div>
     </div>
-    <div class="row-fluid">
+
+    <div class="row-fluid ">
         <div class="col-md-4">
-            <button class="btn btn-large btn-block btn-warn" type="button">产品</button>
+            <a href="/system/PM">
+                <button class="btn btn-large btn-block btn-warn" type="button">产品</button>
+            </a>
         </div>
         <div class="col-md-4">
-            <button class="btn btn-large btn-info btn-block" type="button">开发</button>
+            <a href="/system/PG">
+                <button class="btn btn-large btn-info btn-block" type="button">开发</button>
+            </a>
         </div>
         <div class="col-md-4">
-            <button class="btn btn-success btn-block btn-large" type="button">测试</button>
+            <a href="/system/STE">
+                <button class="btn btn-success btn-block btn-large" type="button">测试</button>
+            </a>
+        </div>
+
+        <div class="col-md-12 row-margin-bottom"></div>
+
+        <div class="col-md-4">
+            <a href="/system/view">
+                <button class="btn btn-large btn-block btn-warn" type="button">查看权限</button>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/system/create">
+                <button class="btn btn-large btn-info btn-block" type="button">创建权限</button>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/system/delete">
+                <button class="btn btn-success btn-block btn-large" type="button">删除权限</button>
+            </a>
         </div>
     </div>
 </div>

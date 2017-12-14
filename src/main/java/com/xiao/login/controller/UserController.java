@@ -9,8 +9,9 @@ import org.apache.shiro.authc.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 
@@ -28,7 +29,7 @@ public class UserController {
     /**
      * 获取登录页面
      *
-     * @return
+     * @return 登陆页面
      */
     @RequestMapping("/loginForm")
     public String getLoginForm() {
@@ -38,17 +39,17 @@ public class UserController {
 
 
     @RequestMapping("/login")
-    public String login(@RequestParam("nickname") String nickname, @RequestParam("password") String password, Map<String, Object> map) {
-        AuthenticationToken authenticationToken = new UsernamePasswordToken(nickname, password);
+    public String login(@RequestParam("nickname") String nickname, @RequestParam("password") String password,@RequestParam("rememberMe") boolean rememberMe, Map<String, Object> map) {
+        AuthenticationToken authenticationToken = new UsernamePasswordToken(nickname, password,rememberMe);
         try {
             SecurityUtils.getSubject().login(authenticationToken);
-        }catch (UnknownAccountException exception) {
+        } catch (UnknownAccountException exception) {
             map.put("message", ResultEnum.UNKNOWN_ACCOUNT.message);
             return "common/error";
         } catch (IncorrectCredentialsException exception) {
             map.put("message", ResultEnum.INCORRECT_CREDENTIALS.message);
             return "common/error";
-          }  catch (LockedAccountException exception) {
+        } catch (LockedAccountException exception) {
             map.put("message", ResultEnum.LOCKED_ACCOUNT.message);
             return "common/error";
         } catch (AuthenticationException exception) {
@@ -57,7 +58,7 @@ public class UserController {
             return "common/error";
         }
         log.info("【登陆成功】");
-        map.put("roles", JsonUtil.toJson(userService.findRoles(nickname)));
+        map.put("info", JsonUtil.toJson(userService.findRolesAndPermission(nickname)));
         return "user/info";
     }
 
@@ -65,36 +66,101 @@ public class UserController {
     /**
      * 登陆成功页面
      *
-     * @return
+     * @return 登陆成功页面
      */
     @RequestMapping(value = "/index")
     public String index() {
         return "user/info";
     }
 
-//    shiro默认实现 /logout 有点问题
+    //    shiro默认实现 /logout 有点问题
     @RequestMapping(value = "/logout")
     public String logout() {
         try {
             SecurityUtils.getSubject().logout();
         } catch (Exception exception) {
-            log.error("【登出报错】exceotion={}",exception.getClass().getName());
+            log.error("【登出报错】exceotion={}", exception.getClass().getName());
         }
         log.info("【用户登出】");
         return "user/login";
     }
 
 
-    @RequestMapping(value = "/error")
-    public String error(Map<String, Object> map) {
-        map.put("message", "用户名/密码错误");
-        return "common/error";
+    /**
+     * 验证产品经理的权限
+     *
+     * @return 验证成功页面
+     */
+    @RequestMapping(value = "/PM")
+    public String verifyPM(Map<String, Object> map) {
+        map.put("message", ResultEnum.PM_SUCCESS.message);
+        return "user/success";
     }
 
-    @RequestMapping(value = "/403")
-    public String Unauthorized(Map<String, Object> map) {
-        map.put("message", "未授权!");
-        return "common/error";
+    /**
+     * 验证测试人员角色
+     *
+     * @return 验证成功页面
+     */
+    @RequestMapping(value = "/STE")
+    public String verifySTE(Map<String, Object> map) {
+        map.put("message", ResultEnum.STE_SUCCESS.message);
+        return "user/success";
+    }
+
+    /**
+     * 验证开发人员角色
+     *
+     * @return 验证成功页面
+     */
+    @RequestMapping(value = "/PG")
+    public String verifyPG(Map<String, Object> map) {
+        map.put("message", ResultEnum.PG_SUCCESS.message);
+        return "user/success";
+    }
+
+    /**
+     * 无权访问跳转
+     *
+     * @return 无权页面
+     */
+    @RequestMapping("/403")
+    public String permissionFailed(Map<String, Object> map) {
+        map.put("error", ResultEnum.PERMISSION_FAILED.message);
+        return "common/403";
+    }
+
+    /**
+     * 测试查看权限
+     *
+     * @return 成功页面
+     */
+    @RequestMapping("/view")
+    public String view(Map<String, Object> map) {
+        map.put("message", ResultEnum.PERMISSION_SUCCESS.message);
+        return "user/success";
+    }
+
+    /**
+     * 测试创建权限
+     *
+     * @return 成功页面
+     */
+    @RequestMapping("/create")
+    public String create(Map<String, Object> map) {
+        map.put("message", ResultEnum.PERMISSION_SUCCESS.message);
+        return "user/success";
+    }
+
+    /**
+     * 测试删除权限
+     *
+     * @return 成功页面
+     */
+    @RequestMapping("/delete")
+    public String delete(Map<String, Object> map) {
+        map.put("message", ResultEnum.PERMISSION_SUCCESS.message);
+        return "user/success";
     }
 
 }

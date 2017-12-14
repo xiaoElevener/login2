@@ -1,17 +1,21 @@
 package com.xiao.login.service.impl;
 
+import com.xiao.login.entity.Role;
 import com.xiao.login.entity.User;
 import com.xiao.login.entity.UserRole;
 import com.xiao.login.entity.cons.UserRolePK;
 import com.xiao.login.repository.RoleRepository;
 import com.xiao.login.repository.UserRepository;
 import com.xiao.login.repository.UserRoleRepository;
+import com.xiao.login.service.RoleService;
 import com.xiao.login.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,11 +35,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private RoleService roleService;
+
     @Override
     public User createUser(User user) {
         return userRepository.save(user);
     }
-
 
 
     @Override
@@ -45,6 +51,8 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+
+    //TODO 优化
     @Override
     public void correlationRoles(Integer userId, Integer... roleIds) {
         if (userId == null || roleIds.length == 0) {
@@ -75,7 +83,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Set<String> findRoles(String nickname) {
+    public Map<String,Set<String>> findRolesAndPermission(String nickname){
         //通过用户名查找用户
         User user = userRepository.findByNickname(nickname);
 
@@ -86,27 +94,37 @@ public class UserServiceImpl implements UserService {
         if (set == null)
             return null;
 
-        HashSet<String> result = new HashSet<>();
+        HashSet<String> roles = new HashSet<>();
+        HashSet<Integer> roleIdSet = new HashSet<Integer>();
         for (UserRole userRole : set
                 ) {
-            result.add(roleRepository.findOne(userRole.getRid()).getName());
+            Role role=roleRepository.findOne(userRole.getRid());
+            roles.add(role.getName());
+            roleIdSet.add(role.getId());
         }
-        return result;
+
+        Map<String, Set<String>> map = new HashMap<>();
+        map.put("roles", roles);
+
+        //通过roleIdSet查找permissionNameSet
+        Set<String> permissionSet = roleService.findPermissions(roleIdSet);
+        map.put("permissions", permissionSet);
+
+        return map;
     }
 
 
     @Override
     public Set<String> findPermissions(String nickname) {
-        //TODO
+
+
+
+
+
         return null;
     }
 
     public boolean exists(Integer uid, Integer rid) {
-        UserRole result = userRoleRepository.findOne(new UserRolePK(uid, rid));
-        if (result != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return userRoleRepository.exists(new UserRolePK(uid, rid));
     }
 }

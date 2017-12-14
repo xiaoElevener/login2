@@ -17,11 +17,7 @@ public class RoleRepositoryTest {
     @Autowired
     private RoleRepository roleRepository;
 
-    @Test
-    public void findById() {
-        Role role = roleRepository.findById(1);
-        assertNotNull(role);
-    }
+
 
     @Test
     public void saveRole(){
@@ -32,9 +28,4 @@ public class RoleRepositoryTest {
         Assert.assertNotNull(result);
     }
 
-    @Test
-    public void deleteRole(){
-        Role role = roleRepository.findById(5);
-        roleRepository.delete(role);
-    }
 }

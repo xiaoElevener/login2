@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
@@ -20,8 +23,8 @@ public class RolePermissionRepositoryTest {
     private RolePermissionRepository repository;
 
     @Test
-    public void saveOne(){
-        RolePermission rolePermission=new RolePermission();
+    public void saveOne() {
+        RolePermission rolePermission = new RolePermission();
         rolePermission.setPid(1);
         rolePermission.setRid(2);
         RolePermission result = repository.save(rolePermission);
@@ -31,15 +34,13 @@ public class RolePermissionRepositoryTest {
 
     @Test
     public void findOne() {
-        RolePermissionPK rolePermissionPK=new RolePermissionPK();
+        RolePermissionPK rolePermissionPK = new RolePermissionPK();
         rolePermissionPK.setPid(1);
         rolePermissionPK.setRid(2);
         RolePermission result = repository.findOne(rolePermissionPK);
         log.info("【result】,result={}", result);
         assertNotNull(result);
     }
-
-
 
 
 }

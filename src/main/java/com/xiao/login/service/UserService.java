@@ -2,6 +2,7 @@ package com.xiao.login.service;
 
 import com.xiao.login.entity.User;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface UserService {
@@ -44,14 +45,14 @@ public interface UserService {
 
 
     /**
-     * 根据用户名查找其角色
+     * 根据用户名查找其角色和权限
      * @param nickname
-     * @return  角色名的Set集合
+     * @return  角色和权限的map集合
      */
-    public Set<String> findRoles(String nickname);
+    public Map<String,Set<String>> findRolesAndPermission(String nickname);
 
     /**
-     * 根据用户名查找其权限
+     * 根据用户名查找其权限名Set
      * @param nickname
      * @return
      */

@@ -25,11 +25,6 @@ public class Permission {
     private Integer id;
 
     /**
-     * 权限url
-     */
-    private String url;
-
-    /**
      * 权限名
      */
     private String name;
