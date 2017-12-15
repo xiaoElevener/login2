@@ -10,12 +10,13 @@ public enum ResultEnum {
     PG_SUCCESS(6,"开发  角色验证成功"),
     PERMISSION_FAILED(7,"无权访问"),
     PERMISSION_SUCCESS(8,"有权访问"),
+    SYSTEM_ERROR(9,"系统错误"),
     ;
 
     final public Integer code;
     final public String message;
 
-    private ResultEnum(Integer code, String message) {
+    ResultEnum(Integer code, String message) {
         this.code = code;
         this.message = message;
     }

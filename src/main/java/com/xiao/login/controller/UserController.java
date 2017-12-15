@@ -1,6 +1,7 @@
 package com.xiao.login.controller;
 
 import com.xiao.login.Enum.ResultEnum;
+import com.xiao.login.Exception.LoginException;
 import com.xiao.login.service.UserService;
 import com.xiao.login.utils.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -47,21 +48,16 @@ public class UserController {
         try {
             SecurityUtils.getSubject().login(authenticationToken);
         } catch (UnknownAccountException exception) {
-            map.put("message", ResultEnum.UNKNOWN_ACCOUNT.message);
-            return "common/error";
+            throw new LoginException(ResultEnum.UNKNOWN_ACCOUNT);
         } catch (IncorrectCredentialsException exception) {
-            map.put("message", ResultEnum.INCORRECT_CREDENTIALS.message);
-            return "common/error";
+            throw new LoginException(ResultEnum.INCORRECT_CREDENTIALS);
         } catch (LockedAccountException exception) {
-            map.put("message", ResultEnum.LOCKED_ACCOUNT.message);
-            return "common/error";
+            throw new LoginException(ResultEnum.LOCKED_ACCOUNT);
         } catch (AuthenticationException exception) {
-            log.info("【异常类】exception={}", exception.getClass().getName());
-            map.put("message", exception.getMessage());
-            return "common/error";
+            throw new LoginException(ResultEnum.SYSTEM_ERROR);
         }
         log.info("【登陆成功】");
-        return "redirect:"+response.encodeRedirectURL("/system/index?nickname="+nickname);
+        return "forward:/system/index";
     }
 
 
@@ -71,7 +67,9 @@ public class UserController {
      * @return 登陆成功页面
      */
     @RequestMapping(value = "/index")
-    public String index( Map<String, Object> map,@RequestParam("nickname") String nickname) {
+    public String index( Map<String, Object> map) {
+        String nickname= (String) SecurityUtils.getSubject().getPrincipal();
+        log.info("【index】Principal={}",nickname);
         map.put("info", JsonUtil.toJson(userService.findRolesAndPermission(nickname)));
         return "user/info";
     }
@@ -82,7 +80,7 @@ public class UserController {
         try {
             SecurityUtils.getSubject().logout();
         } catch (Exception exception) {
-            log.error("【登出报错】exceotion={}", exception.getClass().getName());
+            throw new LoginException(ResultEnum.SYSTEM_ERROR);
         }
         log.info("【用户登出】");
         return "user/login";
