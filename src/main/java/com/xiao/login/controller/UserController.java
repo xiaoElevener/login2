@@ -41,10 +41,10 @@ public class UserController {
 
 
     @RequestMapping("/login")
-    public String login(@RequestParam("nickname") String nickname, @RequestParam("password") String password,@RequestParam(value="rememberMe",
-            required = false,defaultValue = "false") boolean rememberMe, Map<String, Object> map,
-            HttpServletResponse response) {
-        AuthenticationToken authenticationToken = new UsernamePasswordToken(nickname, password,rememberMe);
+    public String login(@RequestParam("nickname") String nickname, @RequestParam("password") String password, @RequestParam(value = "rememberMe",
+            required = false, defaultValue = "false") boolean rememberMe, Map<String, Object> map,
+                        HttpServletResponse response) {
+        AuthenticationToken authenticationToken = new UsernamePasswordToken(nickname, password, rememberMe);
         try {
             SecurityUtils.getSubject().login(authenticationToken);
         } catch (UnknownAccountException exception) {
@@ -67,9 +67,9 @@ public class UserController {
      * @return 登陆成功页面
      */
     @RequestMapping(value = "/index")
-    public String index( Map<String, Object> map) {
-        String nickname= (String) SecurityUtils.getSubject().getPrincipal();
-        log.info("【index】Principal={}",nickname);
+    public String index(Map<String, Object> map) {
+        String nickname = (String) SecurityUtils.getSubject().getPrincipal();
+        log.info("【index】Principal={}", nickname);
         map.put("info", JsonUtil.toJson(userService.findRolesAndPermission(nickname)));
         return "user/info";
     }

@@ -1,6 +1,8 @@
 package com.xiao.login.realm;
 
+import com.xiao.login.Enum.ResultEnum;
 import com.xiao.login.Enum.UserStatusEnum;
+import com.xiao.login.Exception.LoginException;
 import com.xiao.login.entity.Role;
 import com.xiao.login.entity.User;
 import com.xiao.login.service.UserService;
@@ -15,10 +17,13 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 自定义的realm
@@ -32,6 +37,15 @@ public class MyShiroRealm extends AuthorizingRealm {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
+    //用户登录次数计数 redisKey 前缀
+    private final String SHIRO_LOGIN_COUNT = "shiro_login_count_";
+
+    //用户登录是否被锁定  一小时  redisKey前缀
+    private final String SHIRO_IS_LOCK = "shiro_is_lock_";
+
     /**
      *
      * @param principalCollection
@@ -42,6 +56,8 @@ public class MyShiroRealm extends AuthorizingRealm {
         log.info("【权限验证】 principaCollection={}",principalCollection);
         SimpleAuthorizationInfo info =  new SimpleAuthorizationInfo();
         String nickname = (String) SecurityUtils.getSubject().getPrincipal();
+
+
 
         //查询拥有角色及权限
 
@@ -69,13 +85,35 @@ public class MyShiroRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
 
+        log.info("【用户进行登陆验证】");
         if(SecurityUtils.getSubject().isAuthenticated()){
             SecurityUtils.getSubject().logout();
         }
-
+        log.info("【1111】");
         //用户输入的昵称和密码
         String nickname= (String) authenticationToken.getPrincipal();
         String password=new String((char[]) authenticationToken.getCredentials());
+
+
+        log.info("【2222】");
+        //先查询缓存中的数据
+        ValueOperations<String, String> opsForValue = stringRedisTemplate.opsForValue();
+        log.info("【3333】");
+        //计数大于5时，设置用户被锁定一小时
+        if(stringRedisTemplate.hasKey(SHIRO_LOGIN_COUNT+nickname) && Integer.parseInt(opsForValue.get(SHIRO_LOGIN_COUNT+nickname))>=5){
+            opsForValue.set(SHIRO_IS_LOCK + nickname, "LOCK", 1, TimeUnit.HOURS);
+        }
+
+        log.info("【用户登录】用户没被锁定");
+        opsForValue.increment(SHIRO_LOGIN_COUNT+nickname,1);
+        log.info("【用户尝试】");
+
+
+        if ("LOCK".equals(opsForValue.get(SHIRO_IS_LOCK+nickname))) {
+            throw new LockedAccountException();
+        }
+
+
 
         //通过昵称去查询User
         User user = userService.findByNickname(nickname);
@@ -96,13 +134,15 @@ public class MyShiroRealm extends AuthorizingRealm {
             throw new LockedAccountException();
         }
 
-
-        //交给AuthenticatingRealm使用CredetiasMatcher进行密码匹配
+        //返回身份凭证
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(nickname, password, getName());
 
         //更新user登录时间
         user.setLastLoginTime(new Date());
         userService.updateUser(user);
+
+        //清空登陆次数(设置过期时间为0)
+        opsForValue.getOperations().expire(SHIRO_LOGIN_COUNT + nickname, 0, TimeUnit.SECONDS);
 
         log.info("【用户登录】={}",user);
 
