@@ -13,41 +13,38 @@ public interface RoleService {
      * @param role role实体
      * @return 新建角色
      */
-    public Role createRole(Role role);
+    void createRole(Role role);
 
     /**
      * 通过角色id查找role
-     * @param rid  角色id
+     * @param roleId  角色id
      * @return    角色对象
      */
-    public Role findRole(Integer rid);
+    Role findRole(Integer roleId);
 
     /**
      * 删除角色
      *
-     * @param rid 角色id
+     * @param roleId 角色id
      */
-    public void deleteRole(Integer rid);
+    void deleteRole(Integer roleId);
 
     /**
      * 添加角色-权限联系
      *
-     * @param rid         角色id
+     * @param roleId         角色id
      * @param permissionIds 权限id数组
-     * @return
      */
-    public void correlationPermissions(Integer rid, Integer... permissionIds);
+    void correlationPermissions(Integer roleId, Integer... permissionIds);
 
 
     /**
      * 删除角色-权限联系
      *
-     * @param rid         角色id
+     * @param roleId         角色id
      * @param permissionIds 权限id数组
      * @return
      */
-    public void uncorrelationPermissions(Integer rid, Integer... permissionIds);
-
-    public Set<String> findPermissions(Set<Integer> roleIdSet);
+    void uncorrelationPermissions(Integer roleId, Integer... permissionIds);
 
 }

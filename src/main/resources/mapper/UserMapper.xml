@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xiao.login.dao.UserMapper">
+    <resultMap id="UserMap" type="User">
+        <id column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="user_email" property="userEmail" jdbcType="VARCHAR"/>
+        <result column="user_password" property="userPassword" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="user_last_login_time" property="userLastLoginTime" jdbcType="TIMESTAMP"/>
+        <result column="user_status" property="userStatus" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="RoleMap" type="Role">
+        <id column="role_id" property="roleId" jdbcType="INTEGER"/>
+        <result column="role_name" property="roleName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="saveUser" parameterType="User">
+        INSERT  INTO  user(user_id,user_name,user_email,user_password,create_time,user_last_login_time,user_status)
+          VALUES (#{userId},#{userName},#{userEmail},#{userPassword},#{createTime},#{userLastLoginTime},#{userStatus})
+    </insert>
+
+    <update id="updateUser" parameterType="User">
+        UPDATE user SET user_name=#{userName},user_email=#{userEmail},user_status=#{userStatus}
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="getUser" parameterType="Integer" resultMap="UserMap">
+        SELECT * FROM user where user_id=#{userId}
+    </select>
+
+    <select id="getAllUsers"  resultMap="UserMap">
+        SELECT user_id,user_name,user_email,user_password,create_time,user_last_login_time,user_status FROM user
+    </select>
+
+    <select id="getUserByUserName" parameterType="String" resultMap="UserMap">
+        SELECT * FROM user where user_name=#{userName}
+    </select>
+
+    <delete id="deleteUser" parameterType="Integer">
+        DELETE FROM user where user_id=#{userId}
+    </delete>
+
+    <select id="getRolesByUserName" parameterType="String" resultType="String">
+        select role_name from role where role_id in(
+        select role_id from user_role where user_id in (
+        select user_id from user where user_name=#{userName}));
+    </select>
+
+    <select id="getRolesByUserId" parameterType="Integer" resultMap="RoleMap">
+        select role_id,role_name from role where role_id in(
+          select role_id from user_role where user_id = #{userId}
+        )
+    </select>
+
+    <select id="getPermissions" parameterType="String" resultType="String">
+        select permission_name from permission where permission_id in(
+        select permission_id from role_permission where role_id in(
+        select role_id from user_role where user_id in (
+        select user_id from user where user_name=#{userName})));
+    </select>
+
+</mapper>

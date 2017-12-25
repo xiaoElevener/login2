@@ -6,7 +6,8 @@ import com.xiao.login.entity.RolePermission;
 
 public interface PermissionService {
 
-    public Permission createPermission(Permission permission);
-    public void deletePermission(Integer permissionId);
+   void createPermission(Permission permission);
+
+   void deletePermission(Integer permissionId);
 
 }

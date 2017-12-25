@@ -10,8 +10,7 @@ import javax.persistence.*;
  * @author Administrator
  * @create 2017-12-13 11:30
  */
-@Entity
-@Table(name = "u_permission")
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,12 +19,10 @@ public class Permission {
     /**
      * 权限id
      */
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Id
-    private Integer id;
+    private Integer permissionId;
 
     /**
      * 权限名
      */
-    private String name;
+    private String permissionName;
 }

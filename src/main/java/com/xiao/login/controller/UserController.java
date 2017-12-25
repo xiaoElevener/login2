@@ -1,25 +1,27 @@
 package com.xiao.login.controller;
 
 import com.xiao.login.Enum.ResultEnum;
-import com.xiao.login.Exception.LoginException;
+import com.xiao.login.exception.LoginException;
+import com.xiao.login.service.PasswordService;
 import com.xiao.login.service.UserService;
 import com.xiao.login.utils.JsonUtil;
+import com.xiao.login.utils.RSACoder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.web.util.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpSession;
+import java.security.Key;
 import java.util.Map;
 
 
-/**
- * @author Administrator
- */
 @Controller
 @RequestMapping("/system")
 @Slf4j
@@ -28,25 +30,51 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PasswordService passwordService;
+
     /**
      * 获取登录页面
      *
      * @return 登陆页面
      */
     @RequestMapping("/loginForm")
-    public String getLoginForm() {
-        log.info("【获取登录表单】");
-        return "user/login";
+    public String getLoginForm(HttpSession session, Map<String, String> map) {
+        //TODO 两次请求
+        //临时解决
+        if (session.getAttribute("RSA_KEY") == null) {
+            try {
+                Map<String, Key> stringKeyMap = RSACoder.initKey();
+                session.setAttribute("RSA_KEY", stringKeyMap);
+                map.put("publicKey", RSACoder.getPublicKey(stringKeyMap));
+                log.info("【生成的公钥】publicKey={}", RSACoder.getPublicKey(stringKeyMap));
+            } catch (Exception exception) {
+                log.info("生成公私钥报错!\n");
+                exception.printStackTrace();
+                throw new LoginException(ResultEnum.SYSTEM_ERROR);
+            }
+        }else {
+            try {
+                map.put("publicKey", RSACoder.getPublicKey((Map<String, Key>)session.getAttribute("RSA_KEY")));
+            }catch (Exception e){
+                log.error("【提取不到key】");
+                throw new LoginException(ResultEnum.SYSTEM_ERROR);
+            }
+        }
+        return "user/loginForm";
     }
 
 
     @RequestMapping("/login")
-    public String login(@RequestParam("nickname") String nickname, @RequestParam("password") String password, @RequestParam(value = "rememberMe",
+    public void login(@RequestParam("username") String username, @RequestParam("password") String password, @RequestParam(value = "rememberMe",
             required = false, defaultValue = "false") boolean rememberMe, Map<String, Object> map,
-                        HttpServletResponse response) {
-        AuthenticationToken authenticationToken = new UsernamePasswordToken(nickname, password, rememberMe);
+                      HttpSession session, ServletRequest request, ServletResponse response) {
         try {
-            SecurityUtils.getSubject().login(authenticationToken);
+            AuthenticationToken token=passwordService.generalToken(username,password,rememberMe,session);
+            SecurityUtils.getSubject().login(token);
+            //登陆成功
+            session.removeAttribute("RSA_KEY");
+            WebUtils.redirectToSavedRequest(request, response, "/system/index");
         } catch (UnknownAccountException exception) {
             throw new LoginException(ResultEnum.UNKNOWN_ACCOUNT);
         } catch (IncorrectCredentialsException exception) {
@@ -55,9 +83,11 @@ public class UserController {
             throw new LoginException(ResultEnum.LOCKED_ACCOUNT);
         } catch (AuthenticationException exception) {
             throw new LoginException(ResultEnum.SYSTEM_ERROR);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new LoginException(ResultEnum.SYSTEM_ERROR);
         }
-        log.info("【登陆成功】");
-        return "forward:/system/index";
+
     }
 
 
@@ -68,22 +98,16 @@ public class UserController {
      */
     @RequestMapping(value = "/index")
     public String index(Map<String, Object> map) {
-        String nickname = (String) SecurityUtils.getSubject().getPrincipal();
-        log.info("【index】Principal={}", nickname);
-        map.put("info", JsonUtil.toJson(userService.findRolesAndPermission(nickname)));
+        String userName = (String) SecurityUtils.getSubject().getPrincipal();
+        map.put("info", JsonUtil.toJson(userService.findRoles(userName)) + JsonUtil.toJson(userService.findPermissions(userName)));
         return "user/info";
     }
 
-    //    shiro默认实现 /logout 有点问题
-    @RequestMapping(value = "/logout")
-    public String logout() {
-        try {
-            SecurityUtils.getSubject().logout();
-        } catch (Exception exception) {
-            throw new LoginException(ResultEnum.SYSTEM_ERROR);
-        }
-        log.info("【用户登出】");
-        return "user/login";
+
+    @RequestMapping(value = "/authc")
+    public String authc(Map<String, Object> map) {
+        map.put("message", ResultEnum.AUTHC_SUCCESS.message);
+        return "system/success";
     }
 
 
@@ -163,5 +187,14 @@ public class UserController {
         map.put("message", ResultEnum.PERMISSION_SUCCESS.message);
         return "user/success";
     }
+
+    @RequestMapping("/user")
+    public String user(Map<String, Object> map) {
+        map.put("message", ResultEnum.TEST_USER.message);
+        return "user/success";
+    }
+
+
+
 
 }

@@ -1,7 +1,9 @@
 package com.xiao.login.service;
 
+import com.xiao.login.entity.Role;
 import com.xiao.login.entity.User;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,45 +11,62 @@ public interface UserService {
 
     /**
      * 创建用户
+     * @param user
      */
-    public User createUser(User user);
+    void createUser(User user);
 
     /**
-     * 更新user
+     * 更新用户信息
+     * @param user
      */
-    public User updateUser(User user);
+    void updateUser(User user);
 
     /**
-     * 修改密码
+     * 删除用户
+     * @param userId
      */
-    public void changePassword(Integer uid, String newPassword);
+    void deleteUser(Integer userId);
+
+    /**
+     * 获取用户信息
+     * @param userName 用户名
+     * @return
+     */
+    User getUser(String userName);
+
+    List<User> getUsers();
 
     /**
      * 添加用户-角色关系
+     * @param userId
+     * @param roleIds
      */
-    public void correlationRoles(Integer userId, Integer... roleIds);
+    void correlationRoles(Integer userId, Integer... roleIds);
 
     /**
      * 移除用户-角色关系
+     * @param userId
+     * @param roleIds
      */
-    public void uncorrelationRoles(Integer userId, Integer... roleIds);
-
-    /**
-     * 根据用户名查找用户
-
-     */
-    public User findByNickname(String nickname);
-
+    void uncorrelationRoles(Integer userId, Integer... roleIds);
 
 
     /**
-     * 根据用户名查找其角色和权限
-     * @return  角色和权限的map集合
+     * 查询用户拥有的角色
+     * @param userName
+     * @return
      */
-    public Map<String,Set<String>> findRolesAndPermission(String nickname);
+    List<String> findRoles(String userName);
 
     /**
      * 根据用户名查找其权限名Set
      */
-    public Set<String> findPermissions(String nickname);
+    List<String> findPermissions(String userName);
+
+    /**
+     * 通过userId查找对应权限
+     * @param userId
+     * @return
+     */
+    List<Role> findRoles(Integer userId);
 }

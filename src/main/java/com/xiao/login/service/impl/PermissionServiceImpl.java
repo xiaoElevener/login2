@@ -1,7 +1,7 @@
 package com.xiao.login.service.impl;
 
+import com.xiao.login.dao.PermissionMapper;
 import com.xiao.login.entity.Permission;
-import com.xiao.login.repository.PermissionRepository;
 import com.xiao.login.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,15 +14,15 @@ import org.springframework.stereotype.Service;
 public class PermissionServiceImpl implements PermissionService{
 
     @Autowired
-    private PermissionRepository permissionRepository;
+    private PermissionMapper mapper;
 
     @Override
-    public Permission createPermission(Permission permission) {
-        return permissionRepository.save(permission);
+    public void createPermission(Permission permission) {
+        mapper.savePermission(permission);
     }
 
     @Override
     public void deletePermission(Integer permissionId) {
-        permissionRepository.delete(permissionId);
+        mapper.deletePermission(permissionId);
     }
 }

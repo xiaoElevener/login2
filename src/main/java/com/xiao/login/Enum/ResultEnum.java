@@ -11,6 +11,10 @@ public enum ResultEnum {
     PERMISSION_FAILED(7,"无权访问"),
     PERMISSION_SUCCESS(8,"有权访问"),
     SYSTEM_ERROR(9,"系统错误"),
+    AUTHC_SUCCESS(10,"身份认证成功"),
+    TEST_USER(10,"rememberMe成功"),
+    REDIRECT_ERROR(11,"重定向失败"),
+    UNKONWN_SESSION(12,"不知名用户"),
     ;
 
     final public Integer code;

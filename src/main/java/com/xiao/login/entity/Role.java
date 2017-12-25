@@ -10,8 +10,6 @@ import javax.persistence.*;
  * @author Administrator
  * @create 2017-12-13 11:07
  */
-@Entity
-@Table(name="u_role")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,17 +17,12 @@ public class Role {
     /**
      * 角色id
      */
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+
+    private Integer roleId;
 
     /**
      * 角色名称
      */
-    private String name;
+    private String roleName;
 
-    /**
-     * 角色类型
-     */
-    private String type;
 }

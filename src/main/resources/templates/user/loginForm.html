@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>登陆</title>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/my.css"/>
+    <script src="https://cdn.bootcss.com/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="/js/jsencrypt.min.js"></script>
+</head>
+<body>
+<div class="container-fluid  div-margin-top">
+    <div class="row-fluid">
+        <div class="span12 col-md-6 col-sm-offset-3">
+
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="panel-632870">
+                        <form  class="form" method="post" action="/system/login" >
+                            <h2>请登录</h2>
+                            <label for="username" class="sr-only">昵称</label>
+                            <input type="text" id="username" name="username" class="form-control row-margin-bottom" placeholder="昵称"
+                                   required>
+                            <label for="password" class="sr-only">密码</label>
+                            <input type="password" id="password" name="password" class="form-control row-margin-bottom"
+                                   placeholder="密码" required>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="rememberMe" value="true"> 记住我
+                                </label>
+                            </div>
+                            <p hidden="hidden" id="publicKey">${publicKey}</p>
+                            <button class="btn btn-lg btn-primary btn-block row-margin-top" type="submit" onclick="encoderPassword()">登陆</button>
+                        </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    function encoderPassword() {
+        var encrypt = new JSEncrypt();
+        encrypt.setPublicKey($("#publicKey").html());
+        var newPassword = encrypt.encrypt($("#password").val());
+        //先把加号替换成空格,后端再把空格替换为加号
+        $("#password").val(encodeURI(newPassword).replace(/\+/g, '%2B'));
+//        alert(newPassword);
+        //alert('密码长度:'+$("#password").val().length+'  '+typeof ($("#password").val(newPassword)));
+    }
+</script>
+</html>

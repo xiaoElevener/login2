@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xiao.login.dao.PermissionMapper" >
+
+    <resultMap id="PermissionMap" type="Permission">
+        <id column="permission_id" property="permissionId" jdbcType="INTEGER"/>
+        <result column="permission_name" property="permissionName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getPermission" parameterType="Integer" resultMap="PermissionMap"  >
+        SELECT * FROM permission where permission_id=#{permissionId}
+    </select>
+
+    <update id="updatePermission" parameterType="Permission">
+        UPDATE permission SET permission_name=#{permissionName} where permission_id=#{permissionId}
+    </update>
+
+    <delete id="deletePermission" parameterType="Integer">
+        DELETE FROM permission WHERE permission_id = #{permissionId}
+    </delete>
+
+    <insert id="savePermission" parameterType="Permission">
+        INSERT INTO permission(permission_id,permission_name) VALUES (#{permissionId},#{permissionName})
+    </insert>
+
+</mapper>

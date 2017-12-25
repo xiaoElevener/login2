@@ -1,6 +1,6 @@
 package com.xiao.login.handler;
 
-import com.xiao.login.Exception.LoginException;
+import com.xiao.login.exception.LoginException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,7 +18,5 @@ public class LoginExceotionHandler {
         model.addAttribute("message", exception.getMessage());
         return new ModelAndView("/common/error");
     }
-
-
 
 }

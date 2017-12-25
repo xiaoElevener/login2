@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xiao.login.dao.UserRoleMapper">
+
+    <delete id="deleteUserRole" parameterType="userRole">
+        DELETE FROM user_role where user_id=#{userId} and role_id=#{roleId}
+    </delete>
+
+    <insert id="insertUserRole" parameterType="userRole">
+        INSERT INTO user_role(user_id,role_id) VALUES (#{userId},#{roleId})
+    </insert>
+
+    <select id="existUserRole" parameterType="userRole" resultType="Integer">
+        SELECT COUNT(*) from user_role where user_id=#{userId} and role_id=#{roleId}
+    </select>
+
+</mapper>

@@ -1,4 +1,4 @@
-package com.xiao.login.Exception;
+package com.xiao.login.exception;
 
 import com.xiao.login.Enum.ResultEnum;
 import lombok.Getter;

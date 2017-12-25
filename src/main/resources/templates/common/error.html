@@ -1,19 +1,7 @@
 <html>
 <head>
     <link href="https://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
-    <script language="javascript" type="text/javascript">
-        var i=3;
-        var intervalid;
-        intervalid=setInterval("fun()",1000);
-        function fun() {
-            if(i <= 0){
-                window.location.href='index';
-                clearInterval(intervalid);
-            }
-            document.getElementById("mes").innerHTML = i;
-            i--;
-        }
-    </script>
+
 </head>
 
 <body>
@@ -27,4 +15,17 @@
 </div>
 
 </body>
+<script language="javascript" type="text/javascript">
+var i=3;
+var intervalid;
+intervalid=setInterval("fun()",1000);
+function fun() {
+if(i <= 0){
+window.location.href='/system/loginForm';
+clearInterval(intervalid);
+}
+document.getElementById("mes").innerHTML = i;
+i--;
+}
+</script>
 </html>

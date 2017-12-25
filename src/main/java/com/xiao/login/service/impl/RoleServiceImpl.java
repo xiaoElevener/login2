@@ -1,19 +1,16 @@
 package com.xiao.login.service.impl;
 
-import com.xiao.login.entity.Permission;
+
+import com.xiao.login.dao.RoleMapper;
+import com.xiao.login.dao.RolePermissionMapper;
 import com.xiao.login.entity.Role;
 import com.xiao.login.entity.RolePermission;
-import com.xiao.login.entity.cons.RolePermissionPK;
-import com.xiao.login.repository.PermissionRepository;
-import com.xiao.login.repository.RolePermissionRepository;
-import com.xiao.login.repository.RoleRepository;
 import com.xiao.login.service.RoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
+
 
 /**
  * @author Administrator
@@ -24,86 +21,58 @@ import java.util.Set;
 public class RoleServiceImpl implements RoleService {
 
     @Autowired
-    private RoleRepository roleRepository;
+    private RoleMapper roleMapper;
 
     @Autowired
-    private RolePermissionRepository rolePermissionRepository;
-
-    @Autowired
-    private PermissionRepository permissionRepository;
+    private RolePermissionMapper rolePermissionMapper;
 
     @Override
-    public Role createRole(Role role) {
-        return roleRepository.save(role);
+    public void createRole(Role role) {
+        roleMapper.saveRole(role);
     }
 
     @Override
-    public Role findRole(Integer rid) {
-        return roleRepository.findOne(rid);
+    public Role findRole(Integer roleId) {
+        return roleMapper.getRole(roleId);
     }
 
     @Override
-    public void deleteRole(Integer rid) {
-        roleRepository.delete(rid);
+    public void deleteRole(Integer roleId) {
+        roleMapper.deleteRole(roleId);
     }
 
     @Override
-    public void correlationPermissions(Integer rid, Integer... permissionIds) {
-        if (rid == null || permissionIds.length == 0) {
+    public void correlationPermissions(Integer roleId, Integer... permissionIds) {
+        if(roleId == null){
             return;
         }
-        for (Integer pid : permissionIds) {
-            if (!exists(rid, pid)) {
-                rolePermissionRepository.save(new RolePermission(rid, pid));
+
+        for (Integer permissionId:
+             permissionIds) {
+            if(!exist(roleId,permissionId)){
+                rolePermissionMapper.saveRolePermission(new RolePermission(roleId, permissionId));
             }
         }
+
+
     }
 
     @Override
-    public void uncorrelationPermissions(Integer rid, Integer... permissionIds) {
-        if (rid == null || permissionIds.length == 0) {
+    public void uncorrelationPermissions(Integer roleId, Integer... permissionIds) {
+        if(roleId == null){
             return;
         }
-        for (Integer pid : permissionIds) {
-            if (exists(rid, pid)) {
-                rolePermissionRepository.delete(rolePermissionRepository.findOne(new RolePermissionPK(rid, pid)));
+
+        for (Integer permissionId:
+                permissionIds) {
+            if(exist(roleId,permissionId)){
+                rolePermissionMapper.deleteRolePermission(new RolePermission(roleId, permissionId));
             }
         }
     }
 
-    @Override
-    public Set<String> findPermissions(Set<Integer> roleIdSet) {
-        //权限名集合
-        Set<String> permissionSet = new HashSet<>();
 
-        //权限id集合
-        Set<Integer> permissionIdSet = new HashSet<>();
-
-        //通过角色id查询 角色-权限 集合
-        for (Integer rid : roleIdSet
-                ) {
-
-            Set<RolePermission> set = rolePermissionRepository.findByRid(rid);
-
-            for (RolePermission rp : set
-                    ) {
-                permissionIdSet.add(rp.getPid());
-            }
-        }
-
-        log.info("【permissionIdSet】={}",permissionIdSet);
-
-        for (Integer pid : permissionIdSet
-                ) {
-            permissionSet.add(permissionRepository.findOne(pid).getName());
-        }
-        return permissionSet;
-
-
-    }
-
-
-    public boolean exists(Integer rid, Integer pid) {
-        return rolePermissionRepository.exists(new RolePermissionPK(rid, pid));
+    private boolean exist(Integer roleId,Integer permissionId){
+        return rolePermissionMapper.existRolePermission(new RolePermission(roleId,permissionId))>0;
     }
 }

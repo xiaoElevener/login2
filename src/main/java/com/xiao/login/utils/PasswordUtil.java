@@ -1,5 +1,7 @@
 package com.xiao.login.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -10,17 +12,17 @@ import java.security.SecureRandom;
  * @author xiao_elevener
  * @create 2017-12-14 23:07
  */
+@Slf4j
 public class PasswordUtil {
     /**
      * DES算法密钥
      */
-    private static final byte[] DES_KEY = { 21, 1, -110, 82, -32, -85, -128, -65 };
+    private static final byte[] DES_KEY = {21, 1, -110, 82, -32, -85, -128, -65};
 
     /**
      * 数据加密，算法（DES）
      *
-     * @param data
-     *            要进行加密的数据
+     * @param data 要进行加密的数据
      * @return 加密后的数据
      */
     @SuppressWarnings("restriction")
@@ -39,7 +41,7 @@ public class PasswordUtil {
             // 加密，并把字节数组编码成字符串
             encryptedData = new sun.misc.BASE64Encoder().encode(cipher.doFinal(data.getBytes()));
         } catch (Exception e) {
-            // log.error("加密错误，错误信息：", e);
+            log.error("加密错误，错误信息：", e);
             throw new RuntimeException("加密错误，错误信息：", e);
         }
         return encryptedData;
@@ -48,8 +50,7 @@ public class PasswordUtil {
     /**
      * 数据解密，算法（DES）
      *
-     * @param cryptData
-     *            加密数据
+     * @param cryptData 加密数据
      * @return 解密后的数据
      */
     @SuppressWarnings("restriction")
@@ -72,16 +73,6 @@ public class PasswordUtil {
             throw new RuntimeException("解密错误，错误信息：", e);
         }
         return decryptedData;
-    }
-
-    public static void main(String[] args) {
-        String str = "123456";
-        // DES数据加密
-        String s1 = encryptBasedDes(str);
-        System.out.println(s1);
-        // DES数据解密
-        String s2 = decryptBasedDes(s1);
-        System.err.println(s2);
     }
 
 
